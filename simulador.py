@@ -1,0 +1,5 @@
+def SRT() :
+
+
+def SJF() :
+
