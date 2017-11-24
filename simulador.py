@@ -1,5 +1,5 @@
 def SRT() :
 
 
-def SJF() :
+def SJF(context_switch, cpus, procesoID, arrival_time, execution_time) :
 
