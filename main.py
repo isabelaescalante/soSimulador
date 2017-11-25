@@ -15,6 +15,7 @@ cpus = 0
 flag = False
 lista_procesos = []
 io = []
+error_proceso = False
 
 with open("cases.txt") as archivo_entrada :
     for line in archivo_entrada :
@@ -30,14 +31,20 @@ with open("cases.txt") as archivo_entrada :
             # falta romper todo
         if words[0].isdigit() :
             if len(words) == 3 :
+                error_proceso = True
                 proceso = Proceso(int(words[0]), int(words[1]), int(words[2]))
                 lista_procesos.append(proceso)
             if len(words) > 3 :
                 if words[3] == "I/O" :
+                    error_proceso = True
                     for i in words[4:] :
                         io.append(int(i))
                     proceso = Proceso(int(words[0]), int(words[1]), int(words[2]), io)
                     lista_procesos.append(proceso)
+            if not error_proceso :
+                print("El proceso: " + words[0] + " no se encuentra en el formato deseado")
+            
+            error_proceso = False
         if words[0] == "FIN" :
             if politica == "-1" or quantum <> 0 or context_switch == -1 or cpus == 0 : 
                 flag = False
