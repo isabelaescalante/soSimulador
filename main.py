@@ -35,7 +35,7 @@ with open("cases.txt") as archivo_entrada :
                 proceso = Proceso(int(words[0]), int(words[1]), int(words[2]))
                 lista_procesos.append(proceso)
             if len(words) > 3 :
-                if words[3] == "I/O" :
+                if words[3] == "I/O" and ((len(words) - 4) % 2 == 0):
                     error_proceso = True
                     for i in words[4:] :
                         io.append(int(i))
@@ -51,8 +51,7 @@ with open("cases.txt") as archivo_entrada :
             else :
                 flag = True
 
-lista_procesos.sort(key=lambda x: (x.arr_time, x.exe_time), reverse=False)
-
 if flag :
-    for i in lista_procesos :
-        print(i.id, i.arr_time, i.exe_time)
+    lista_procesos.sort(key=lambda x: (x.arr_time, x.exe_time), reverse=False)
+    #for i in lista_procesos :
+    #   print(i.id, i.arr_time, i.exe_time)
