@@ -4,7 +4,7 @@ class Proceso:
         self.id = i_d
         self.arr_time = at
         self.exe_time = et
-        self.io_flag = 0
+        self.io_flag = io_flag
         self.io = i_o
         self.wait_time = 0
         self.end_time = 0
@@ -13,25 +13,48 @@ def SJF(lista_procesos, context_switch, cpu) :
     print("SJF")
     tiempo = 0
     tiempo_cc = 0
+    alguno = False
     while len(lista_procesos) > 0 :
         for i in lista_procesos :
+            alguno = False
             if i.arr_time <= tiempo :
-                tiempo = tiempo_cc
-                print("El proceso: " + str(i.id) + " esta en el cpu")
-                i.wait_time = tiempo
-                i.end_time = i.wait_time + i.exe_time
-                tiempo = tiempo + i.exe_time
-                print("El proceso: " + str(i.id) + " ha salido del cpu")
-                if len(lista_procesos) != 1 :
-                    tiempo_cc = tiempo + context_switch
-                    print("tiempo: " + str(tiempo_cc))
-                else:
-                    print("tiempo: " + str(tiempo))
-                print(i.id, i.wait_time, i.end_time)
+                print("El proceso: " + str(i.id) + " esta en el cpu, entro en el tiempo: " + str(tiempo))
+                if i.io_flag == 1 :
+                    i.exe_time = i.exe_time - i.io[0]
+                    tiempo = tiempo + i.io[0]
+                    tiempo_cc = tiempo
+                    print("El proceso: " + str(i.id) + " se bloqueo en el tiempo " + str(tiempo))
+                    i.arr_time = tiempo + i.io[1]
+                    if len(i.io) > 2 :
+                        i.io[2] = i.io[2] - i.io[0]
+                        i.io.pop(0)
+                        i.io.pop(0)
+                        lista_procesos.sort(key=lambda x: (x.exe_time, x.arr_time, x.id), reverse=False)
+                    else :
+                        i.io_flag = 0
+                else :
+                    tiempo = tiempo_cc
+                    i.wait_time = tiempo
+                    i.end_time = i.wait_time + i.exe_time
+                    tiempo = tiempo + i.exe_time
+                    if len(lista_procesos) != 1 :
+                        tiempo_cc = tiempo + context_switch
+                        print("El proceso: " + str(i.id) + " ha salido del cpu en el tiempo " + str(tiempo_cc))
+                    else:
+                        print("El proceso: " + str(i.id) + " ha salido del cpu en el tiempo " + str(tiempo))
+                    lista_procesos.remove(i)
                 break
-        lista_procesos.remove(i)
-    
-
+            else :
+                for y in lista_procesos :
+                    if y.arr_time <= tiempo :
+                        alguno = True
+                        i = y
+                        break
+                if alguno == False :
+                    lista_procesos.sort(key=lambda x: (x.arr_time, x.exe_time, x.id), reverse=False)
+                    tiempo = lista_procesos[0].arr_time
+                    tiempo_cc = tiempo
+                    lista_procesos.sort(key=lambda x: (x.exe_time, x.arr_time, x.id), reverse=False)
 
 def SRT(lista_procesos, context_switch, cpus) :
     print("SRT")
@@ -52,17 +75,17 @@ def leerArchivo() :
             words = line.split()
             if words[0] == "SJF" or words[0] == "SRT":
                 politica = words[0]
-            if words[0] == "QUANTUM" :
+            elif words[0] == "QUANTUM" :
                 quantum = int(words[1])
-            if words[0] == "CONTEXT" and words[1] == "SWITCH":
+            elif words[0] == "CONTEXT" and words[1] == "SWITCH":
                 context_switch =  int(words[2])
-            if words[0] == "CPUS" :
+            elif words[0] == "CPUS" :
                 cpus = int(words[1])
                 # falta romper todo
-            if words[0].isdigit() :
+            elif words[0].isdigit() :
                 if len(words) == 3 :
                     error_proceso = True
-                    proceso = Proceso(int(words[0]), int(words[1]), int(words[2]))
+                    proceso = Proceso(int(words[0]), int(words[1]), int(words[2]), 0)
                     lista_procesos.append(proceso)
                 if len(words) > 3 :
                     if words[3] == "I/O" and ((len(words) - 4) % 2 == 0):
@@ -75,14 +98,14 @@ def leerArchivo() :
                     print("El proceso: " + words[0] + " no se encuentra en el formato deseado")
                 
                 error_proceso = False
-            if words[0] == "FIN" :
+            elif words[0] == "FIN" :
                 if politica == "-1" or quantum <> 0 or context_switch == -1 or cpus == 0 : 
                     flag = False
                 else :
                     flag = True
 
     if flag :
-        lista_procesos.sort(key=lambda x: (x.exe_time, x.arr_time), reverse=False)
+        lista_procesos.sort(key=lambda x: (x.exe_time, x.arr_time, x.id), reverse=False)
         if politica == "SJF" :
             SJF(lista_procesos, context_switch, cpus)
         else :
