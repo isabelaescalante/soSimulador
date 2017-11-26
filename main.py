@@ -58,8 +58,7 @@ def SJF(lista_procesos, context_switch, cpu) :
 
 def SRT(lista_procesos, context_switch, cpus) :
     print("SRT")
-    #for i in lista_procesos :
-    #       print(i.id, i.arr_time, i.exe_time)
+
 
 def leerArchivo() :
     politica = "-1"
