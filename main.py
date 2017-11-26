@@ -8,12 +8,31 @@ class Proceso:
         self.wait_time = 0
         self.end_time = 0
 
-def SJF(lista_procesos) :
+def SJF(lista_procesos, context_switch, cpu) :
     print("SJF")
-    #for i in lista_procesos :
-    #       print(i.id, i.arr_time, i.exe_time)
+    tiempo = 0
+    tiempo_cc = 0
+    while len(lista_procesos) > 0 :
+        for i in lista_procesos :
+            if i.arr_time <= tiempo :
+                tiempo = tiempo_cc
+                print("El proceso: " + str(i.id) + " esta en el cpu")
+                i.wait_time = tiempo
+                i.end_time = i.wait_time + i.exe_time
+                tiempo = tiempo + i.exe_time
+                print("El proceso: " + str(i.id) + " ha salido del cpu")
+                if len(lista_procesos) != 1 :
+                    tiempo_cc = tiempo + context_switch
+                    print("tiempo: " + str(tiempo_cc))
+                else:
+                    print("tiempo: " + str(tiempo))
+                print(i.id, i.wait_time, i.end_time)
+                break
+        lista_procesos.remove(i)
+    
 
-def SRT(lista_procesos) :
+
+def SRT(lista_procesos, context_switch, cpus) :
     print("SRT")
     #for i in lista_procesos :
     #       print(i.id, i.arr_time, i.exe_time)
@@ -62,11 +81,11 @@ def leerArchivo() :
                     flag = True
 
     if flag :
-        lista_procesos.sort(key=lambda x: (x.arr_time, x.exe_time), reverse=False)
+        lista_procesos.sort(key=lambda x: (x.exe_time, x.arr_time), reverse=False)
         if politica == "SJF" :
-            SJF(lista_procesos)
+            SJF(lista_procesos, context_switch, cpus)
         else :
-            SRT(lista_procesos)
+            SRT(lista_procesos, context_switch, cpus)
         #for i in lista_procesos :
         #   print(i.id, i.arr_time, i.exe_time)
     else :
