@@ -1,9 +1,10 @@
 #from simulador import SJF, SRT
 class Proceso:
-    def __init__(self, i_d, at, et, i_o=[]):
+    def __init__(self, i_d, at, et, io_flag, i_o=[]):
         self.id = i_d
         self.arr_time = at
         self.exe_time = et
+        self.io_flag = 0
         self.io = i_o
         self.wait_time = 0
         self.end_time = 0
@@ -68,7 +69,7 @@ def leerArchivo() :
                         error_proceso = True
                         for i in words[4:] :
                             io.append(int(i))
-                        proceso = Proceso(int(words[0]), int(words[1]), int(words[2]), io)
+                        proceso = Proceso(int(words[0]), int(words[1]), int(words[2]), 1, io)
                         lista_procesos.append(proceso)
                 if not error_proceso :
                     print("El proceso: " + words[0] + " no se encuentra en el formato deseado")
