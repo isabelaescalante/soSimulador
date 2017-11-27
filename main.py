@@ -37,6 +37,8 @@ def SJF(lista_procesos, context_switch, cpus) :
     alguno = False
     actual = -1
     arr_cpus = []
+    lista_turn = []
+    lista_espera = []
     for x in range(0, cpus):
         arr_cpus.append(CPU(x,0))
     
@@ -69,8 +71,16 @@ def SJF(lista_procesos, context_switch, cpus) :
                     if len(lista_procesos) != 1 :
                         cpu.tiempo_cc = cpu.tiempoact + context_switch
                         print("El proceso: " + str(i.id) + " ha salido del CPU_" + str(cpu.id) + " en el tiempo " + str(cpu.tiempoact))
+                        lista_turn.append(i.id)
+                        lista_turn.append(i.end_time - i.arr_time)
+                        lista_espera.append(i.id)
+                        lista_espera.append(i.wait_time)
                     else:
                         print("El proceso: " + str(i.id) + " ha salido del CPU_" + str(cpu.id) + " en el tiempo " + str(cpu.tiempoact))
+                        lista_turn.append(i.id)
+                        lista_turn.append(i.end_time - i.arr_time)
+                        lista_espera.append(i.id)
+                        lista_espera.append(i.wait_time)
                     lista_procesos.remove(i)
                 break
             else :
@@ -84,6 +94,31 @@ def SJF(lista_procesos, context_switch, cpus) :
                     cpu.tiempoact = lista_procesos[0].arr_time
                     cpu.tiempo_cc = cpu.tiempoact
                     lista_procesos.sort(key=lambda x: (x.exe_time, x.arr_time, x.id), reverse=False)
+ #Impresiones
+    tiempo_turn_promedio = 0
+    tiempo_turn_espera = 0
+    it = 1
+    length_espera = len(lista_espera) / 2
+    length_turn = len(lista_turn) / 2
+    while it < len(lista_turn) :
+        tiempo_turn_promedio = tiempo_turn_promedio + lista_turn[it]
+        it = it + 2
+    it = 1
+    while it < len(lista_espera) :
+        tiempo_turn_espera = tiempo_turn_espera + lista_espera[it]
+        it = it + 2
+
+    while len(lista_turn) > 0 :
+        print("Proceso: " + str(lista_turn[0]) + " TurnAround: " + str(lista_turn[1]))
+        lista_turn.pop(0)
+        lista_turn.pop(0)
+    print("Tiempo de TurnAround Promedio: " + str(tiempo_turn_promedio/length_turn))
+
+    while len(lista_espera) > 0 :
+        print("Proceso: " + str(lista_espera[0]) + " Tiempo de Espera: " + str(lista_espera[1]))
+        lista_espera.pop(0)
+        lista_espera.pop(0)
+    print("Tiempo de Espera Promedio: " + str(tiempo_turn_espera/length_espera))
 
 def SRT(lista_procesos, context_switch, cpus) :
     print("SRT")
@@ -100,9 +135,10 @@ def SRT(lista_procesos, context_switch, cpus) :
             if i.arr_time <= tiempo and i.exe_time <= rtProceso :
                 if (id_proceso == None) :
                     id_proceso = i.id
+                    print("El proceso: " + str(i.id) +", entro en el tiempo: " + str(tiempo))
                 elif (id_proceso != i.id) :
                     tiempo = tiempo + context_switch
-                print("El proceso: " + str(i.id) +", entro en el tiempo: " + str(tiempo))
+                    print("El proceso: " + str(i.id) +", entro en el tiempo: " + str(tiempo))
                 if i.io_flag == 1 :
                     i.exe_time = i.exe_time - i.io[0]
                     tiempo = tiempo + i.io[0]
