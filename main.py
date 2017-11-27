@@ -89,18 +89,23 @@ def SRT(lista_procesos, context_switch, cpus) :
     print("SRT")
     tiempo = 0
     tiempo_cc = 0
-    alguno = False 
+    alguno = False
+    id_proceso = None
     # remaining time del proceso dentro del CPU
     rtProceso = 10000000 
     while len(lista_procesos) > 0 :
+        #print("Segunda Vuelta")
         for i in lista_procesos :
             alguno = False
-            if i.arr_time <= tiempo and i.exe_time < rtProceso :
-                print("El proceso: " + str(i.id) + " esta en el cpu, entro en el tiempo: " + str(tiempo))
+            if i.arr_time <= tiempo and i.exe_time <= rtProceso :
+                if (id_proceso == None) :
+                    id_proceso = i.id
+                elif (id_proceso != i.id) :
+                    tiempo = tiempo + context_switch
+                print("El proceso: " + str(i.id) +", entro en el tiempo: " + str(tiempo))
                 if i.io_flag == 1 :
                     i.exe_time = i.exe_time - i.io[0]
                     tiempo = tiempo + i.io[0]
-                    tiempo_cc = tiempo
                     print("El proceso: " + str(i.id) + " se bloqueo en el tiempo " + str(tiempo))
                     i.arr_time = tiempo + i.io[1]
                     if len(i.io) > 2 :
@@ -111,18 +116,21 @@ def SRT(lista_procesos, context_switch, cpus) :
                     else :
                         i.io_flag = 0
                 else :
-                    tiempo = tiempo_cc
                     i.wait_time = tiempo
                     # i.end_time = i.wait_time + i.exe_time
                     tiempo = tiempo + 1
+                    i.arr_time = tiempo
                     i.exe_time = i.exe_time -1
                     rtProceso = i.exe_time
-
-                    if len(lista_procesos) == 1 :
-                        print("El proceso: " + str(i.id) + " ha salido del cpu en el tiempo " + str(tiempo))
+                    #if len(lista_procesos) == 1 :
+                        #print("El proceso: " + str(i.id) + " ha salido del cpu en el tiempo " + str(tiempo))
                     if i.exe_time == 0 :
+                        print("El proceso: " + str(i.id) + " ha salido del cpu en el tiempo " + str(tiempo))
                         lista_procesos.remove(i)
-                    break
+                        rtProceso = 10000000
+                    lista_procesos.sort(key=lambda x: (x.exe_time, x.arr_time, x.id), reverse=False)
+                    id_proceso = i.id
+                break
 
                     # if len(lista_procesos) != 1 :
                     #     tiempo_cc = tiempo + context_switch
@@ -179,7 +187,7 @@ def leerArchivo() :
                 
                 error_proceso = False
             elif words[0] == "FIN" :
-                if politica == "-1" or quantum <> 0 or context_switch == -1 or cpus == 0 : 
+                if politica == "-1" or quantum != 0 or context_switch == -1 or cpus == 0 : 
                     flag = False
                 else :
                     flag = True
