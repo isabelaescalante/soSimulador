@@ -1,4 +1,10 @@
 #from simulador import SJF, SRT
+class CPU:
+    def __init__(self, i_d, tiempo_act):
+        self.id = i_d
+        self.tiempoact = tiempo_act
+        self.tiempo_cc = 0
+
 class Proceso:
     def __init__(self, i_d, at, et, io_flag, i_o=[]):
         self.id = i_d
@@ -8,23 +14,46 @@ class Proceso:
         self.io = i_o
         self.wait_time = 0
         self.end_time = 0
+        self.cpuId = 0
+    def add_CPU (self, actual, cant, arr_procesos):
+        if actual >= cant :
+            arr_procesos.sort(key=lambda x: (x.arr_time + x.exe_time), reverse=False)
+            id_actual = arr_procesos[0].cpuId
+            arr_procesos.pop(0)
+            arr_procesos.append(self)
+            self.cpuId = id_actual
+        else :
+            arr_procesos.append(self)
+            self.cpuId = actual + 1
+def get_CPU (arr_cpus):
+        arr_cpus.sort(key=lambda x: (x.tiempoact), reverse=False)
+        return arr_cpus[0]
 
-def SJF(lista_procesos, context_switch, cpu) :
+
+def SJF(lista_procesos, context_switch, cpus) :
     print("SJF")
-    tiempo = 0
-    tiempo_cc = 0
+    #tiempo = 0
+    #tiempo_cc = 0
     alguno = False
+    actual = -1
+    arr_cpus = []
+    for x in range(0, cpus):
+        arr_cpus.append(CPU(x,0))
+    
     while len(lista_procesos) > 0 :
         for i in lista_procesos :
             alguno = False
-            if i.arr_time <= tiempo :
-                print("El proceso: " + str(i.id) + " esta en el cpu, entro en el tiempo: " + str(tiempo))
+            cpu = get_CPU(arr_cpus)
+            if i.arr_time <= cpu.tiempoact :
+                #i.add_CPU(actual, cpus, arr_procesos)
+                #actual = actual + 1
+                print("El proceso: " + str(i.id) + " esta en el CPU_" + str(cpu.id) + " , entro en el tiempo: " + str(cpu.tiempo_cc))
                 if i.io_flag == 1 :
                     i.exe_time = i.exe_time - i.io[0]
-                    tiempo = tiempo + i.io[0]
-                    tiempo_cc = tiempo
-                    print("El proceso: " + str(i.id) + " se bloqueo en el tiempo " + str(tiempo))
-                    i.arr_time = tiempo + i.io[1]
+                    cpu.tiempoact = cpu.tiempoact + i.io[0]
+                    cpu.tiempo_cc = cpu.tiempoact
+                    print("El proceso: " + str(i.id) + " se bloqueo en el tiempo " + str(cpu.tiempoact))
+                    i.arr_time = cpu.tiempoact + i.io[1]
                     if len(i.io) > 2 :
                         i.io[2] = i.io[2] - i.io[0]
                         i.io.pop(0)
@@ -33,27 +62,27 @@ def SJF(lista_procesos, context_switch, cpu) :
                     else :
                         i.io_flag = 0
                 else :
-                    tiempo = tiempo_cc
-                    i.wait_time = tiempo
+                    cpu.tiempoact = cpu.tiempo_cc
+                    i.wait_time = cpu.tiempoact
                     i.end_time = i.wait_time + i.exe_time
-                    tiempo = tiempo + i.exe_time
+                    cpu.tiempoact = cpu.tiempoact + i.exe_time
                     if len(lista_procesos) != 1 :
-                        tiempo_cc = tiempo + context_switch
-                        print("El proceso: " + str(i.id) + " ha salido del cpu en el tiempo " + str(tiempo_cc))
+                        cpu.tiempo_cc = cpu.tiempoact + context_switch
+                        print("El proceso: " + str(i.id) + " ha salido del CPU_" + str(cpu.id) + " en el tiempo " + str(cpu.tiempoact))
                     else:
-                        print("El proceso: " + str(i.id) + " ha salido del cpu en el tiempo " + str(tiempo))
+                        print("El proceso: " + str(i.id) + " ha salido del CPU_" + str(cpu.id) + " en el tiempo " + str(cpu.tiempoact))
                     lista_procesos.remove(i)
                 break
             else :
                 for y in lista_procesos :
-                    if y.arr_time <= tiempo :
+                    if y.arr_time <= cpu.tiempoact :
                         alguno = True
                         i = y
                         break
                 if alguno == False :
                     lista_procesos.sort(key=lambda x: (x.arr_time, x.exe_time, x.id), reverse=False)
-                    tiempo = lista_procesos[0].arr_time
-                    tiempo_cc = tiempo
+                    cpu.tiempoact = lista_procesos[0].arr_time
+                    cpu.tiempo_cc = cpu.tiempoact
                     lista_procesos.sort(key=lambda x: (x.exe_time, x.arr_time, x.id), reverse=False)
 
 def SRT(lista_procesos, context_switch, cpus) :
