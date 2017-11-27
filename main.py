@@ -52,11 +52,7 @@ def SJF(lista_procesos, context_switch, cpus) :
                     i.exe_time = i.exe_time - i.io[0]
                     cpu.tiempoact = cpu.tiempoact + i.io[0]
                     cpu.tiempo_cc = cpu.tiempoact
-<<<<<<< HEAD
                     print("El proceso: " + str(i.id) + " se bloqueo en el tiempo " + str(cpu.tiempo_cc))
-=======
-                    print("El proceso: " + str(i.id) + " se bloqueo en el tiempo " + str(cpu.tiempoact))
->>>>>>> 9c478561318d136337eae93cb114ed0292d9fd91
                     i.arr_time = cpu.tiempoact + i.io[1]
                     if len(i.io) > 2 :
                         i.io[2] = i.io[2] - i.io[0]
