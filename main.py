@@ -88,7 +88,112 @@ def SJF(lista_procesos, context_switch, cpus) :
 def SRT(lista_procesos, context_switch, cpus) :
     print("SRT")
 
+def SJF(lista_procesos, context_switch, cpu) :
+    print("SJF")
+    tiempo = 0
+    tiempo_cc = 0
+    alguno = False
+    while len(lista_procesos) > 0 :
+        for i in lista_procesos :
+            alguno = False
+            if i.arr_time <= tiempo :
+                print("El proceso: " + str(i.id) + " esta en el cpu, entro en el tiempo: " + str(tiempo))
+                if i.io_flag == 1 :
+                    i.exe_time = i.exe_time - i.io[0]
+                    tiempo = tiempo + i.io[0]
+                    tiempo_cc = tiempo
+                    print("El proceso: " + str(i.id) + " se bloqueo en el tiempo " + str(tiempo))
+                    i.arr_time = tiempo + i.io[1]
+                    if len(i.io) > 2 :
+                        i.io[2] = i.io[2] - i.io[0]
+                        i.io.pop(0)
+                        i.io.pop(0)
+                        lista_procesos.sort(key=lambda x: (x.exe_time, x.arr_time, x.id), reverse=False)
+                    else :
+                        i.io_flag = 0
+                else :
+                    tiempo = tiempo_cc
+                    i.wait_time = tiempo
+                    i.end_time = i.wait_time + i.exe_time
+                    tiempo = tiempo + i.exe_time
+                    if len(lista_procesos) != 1 :
+                        tiempo_cc = tiempo + context_switch
+                        print("El proceso: " + str(i.id) + " ha salido del cpu en el tiempo " + str(tiempo_cc))
+                    else:
+                        print("El proceso: " + str(i.id) + " ha salido del cpu en el tiempo " + str(tiempo))
+                    lista_procesos.remove(i)
+                break
+            else :
+                for y in lista_procesos :
+                    if y.arr_time <= tiempo :
+                        alguno = True
+                        i = y
+                        break
+                if alguno == False :
+                    lista_procesos.sort(key=lambda x: (x.arr_time, x.exe_time, x.id), reverse=False)
+                    tiempo = lista_procesos[0].arr_time
+                    tiempo_cc = tiempo
+                    lista_procesos.sort(key=lambda x: (x.exe_time, x.arr_time, x.id), reverse=False)
 
+<<<<<<< HEAD
+=======
+def SRT(lista_procesos, context_switch, cpus) :
+    print("SRT")
+    tiempo = 0
+    tiempo_cc = 0
+    alguno = False 
+    # remaining time del proceso dentro del CPU
+    rtProceso = 10000000 
+    while len(lista_procesos) > 0 :
+        for i in lista_procesos :
+            alguno = False
+            if i.arr_time <= tiempo and i.exe_time < rtProceso :
+                print("El proceso: " + str(i.id) + " esta en el cpu, entro en el tiempo: " + str(tiempo))
+                if i.io_flag == 1 :
+                    i.exe_time = i.exe_time - i.io[0]
+                    tiempo = tiempo + i.io[0]
+                    tiempo_cc = tiempo
+                    print("El proceso: " + str(i.id) + " se bloqueo en el tiempo " + str(tiempo))
+                    i.arr_time = tiempo + i.io[1]
+                    if len(i.io) > 2 :
+                        i.io[2] = i.io[2] - i.io[0]
+                        i.io.pop(0)
+                        i.io.pop(0)
+                        lista_procesos.sort(key=lambda x: (x.exe_time, x.arr_time, x.id), reverse=False)
+                    else :
+                        i.io_flag = 0
+                else :
+                    tiempo = tiempo_cc
+                    i.wait_time = tiempo
+                    # i.end_time = i.wait_time + i.exe_time
+                    tiempo = tiempo + 1
+                    i.exe_time = i.exe_time -1
+                    rtProceso = i.exe_time
+
+                    if len(lista_procesos) == 1 :
+                        print("El proceso: " + str(i.id) + " ha salido del cpu en el tiempo " + str(tiempo))
+                    if i.exe_time == 0 :
+                        lista_procesos.remove(i)
+                    break
+
+                    # if len(lista_procesos) != 1 :
+                    #     tiempo_cc = tiempo + context_switch
+                    #     print("El proceso: " + str(i.id) + " ha salido del cpu en el tiempo " + str(tiempo_cc))
+                    # else:
+                    #     print("El proceso: " + str(i.id) + " ha salido del cpu en el tiempo " + str(tiempo))
+            else :
+                for y in lista_procesos :
+                    if y.arr_time <= tiempo :
+                        alguno = True
+                        break
+                if alguno == False :
+                    lista_procesos.sort(key=lambda x: (x.arr_time, x.exe_time, x.id), reverse=False)
+                    tiempo = lista_procesos[0].arr_time
+                    tiempo_cc = tiempo
+                    lista_procesos.sort(key=lambda x: (x.exe_time, x.arr_time, x.id), reverse=False)
+            
+
+>>>>>>> 6a72ebdeb802bfffd31f68e5c89a38112c8f913a
 def leerArchivo() :
     politica = "-1"
     quantum = -1
